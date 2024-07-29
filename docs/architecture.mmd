@@ -1,0 +1,19 @@
+C4Container
+   Person(sre, SRE, "")
+   Container_Boundary(incidents_detection, "") {
+        Container(web_ui, "Web UI", "", "")
+        Container(backend, "Cluster Health Analyzer", "backend", "")
+        ContainerDb(prometheus, "Prometheus", "", "")
+   }
+
+   BiRel(web_ui, sre, "Uses")
+   UpdateRelStyle(web_ui, sre, $offsetX="-40", $offsetY="10")
+
+   Rel(prometheus, backend, "Reads Alerts")
+   UpdateRelStyle(prometheus, backend, $offsetX="-100")
+
+   Rel(backend, prometheus, "Exports Mapping Data")
+   UpdateRelStyle(backend, prometheus, $offsetX="40")
+
+   Rel(prometheus, web_ui, "Reads Alerts and Incidents")
+   UpdateRelStyle(prometheus, web_ui, $offsetX="-170")
