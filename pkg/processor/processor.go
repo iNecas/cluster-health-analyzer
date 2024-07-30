@@ -75,14 +75,6 @@ func (p *processor) InitGroupsCollection(ctx context.Context, start, end time.Ti
 	return nil
 }
 
-func (p *processor) processHisotricalAlerts(alertsRange []prom.AlertRange) {
-	changes := MetricsChanges(alertsRange)
-
-	for _, change := range changes {
-		p.groupsCollection.ProcessIntervalsBatch(change.Intervals)
-	}
-}
-
 // Run runs the processor and blocks until canceled via the ctx.
 func (p *processor) Run(ctx context.Context) {
 	// wait.Until provides the core for the repeated execution of the Process method
