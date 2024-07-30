@@ -1,10 +1,19 @@
 package processor
 
 import (
-	"context"
-	"fmt"
 	"testing"
 )
 
-func GroupsCollection(t *testing.T) {
+// TODOs:
+// - write basic tests
+// - rename GroupsCollection to IncidentsMapper
+
+func TestGroupsCollectionProcessAlertsBatch(t *testing.T) {
+}
+
+func TestGroupsCollectionPruneGroups(t *testing.T) {
+}
+
+func TestGroupsCollectionProcessHistoricalAlerts(t *testing.T) {
+
 }

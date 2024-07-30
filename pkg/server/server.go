@@ -42,8 +42,8 @@ func StartServer(interval time.Duration) {
 		return
 	}
 
-	start := time.Now().Add(-1 * HistoryLookback)
 	end := time.Now()
+	start := end.Add(-1 * HistoryLookback)
 	step := time.Minute
 	err = processor.InitGroupsCollection(context.Background(), start, end, step)
 	if err != nil {

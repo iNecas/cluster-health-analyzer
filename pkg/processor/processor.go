@@ -58,6 +58,8 @@ func (p *processor) InitGroupsCollection(ctx context.Context, start, end time.Ti
 		return err
 	}
 
+	p.groupsCollection.processHisotricalAlerts(alertsRange)
+
 	changes := MetricsChanges(alertsRange)
 
 	for _, change := range changes {
@@ -71,6 +73,14 @@ func (p *processor) InitGroupsCollection(ctx context.Context, start, end time.Ti
 	}
 	p.groupsCollection.UpdateGroupUUIDs(healthMapRV)
 	return nil
+}
+
+func (p *processor) processHisotricalAlerts(alertsRange []prom.AlertRange) {
+	changes := MetricsChanges(alertsRange)
+
+	for _, change := range changes {
+		p.groupsCollection.ProcessIntervalsBatch(change.Intervals)
+	}
 }
 
 // Run runs the processor and blocks until canceled via the ctx.
