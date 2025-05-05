@@ -1,0 +1,512 @@
+# Example configuration of cluster components.
+#
+# Builds the following hierarchy:
+#
+#   - control-plane: control-plane related health indicators
+#     - nodes: health based on status of individual control-plane nodes
+#     - capacity: mapping of capacity-related alerts
+#       - cpu: cpu-related alerts for the whole CP (not individual nodes)
+#       - memory: memory-related alerts for the whole CP (not individual nodes)
+#     - operators - individual operators composing the control plane
+#   - addons: additional components usually added by OLM operators
+#   - workloads:
+#     - nodes: health based on status individual worker nodes
+#
+- name: control-plane
+  children:
+
+  - name: nodes
+    objects:
+    - resource: nodes
+      selectors:
+      - matchLabels:
+          node-role.kubernetes.io/control-plane:
+
+  - name: capacity
+    children:
+    - name: cpu
+      alerts:
+        selectors:
+        - matchLabels:
+            alertname: [KubeCPUOvercommit, HighOverallControlPlaneCPU]
+
+    - name: memory
+      alerts:
+        selectors:
+        - matchLabels:
+            alertname: [HighOverallControlPlaneMemory]
+
+  - name: operators
+    children:
+
+    - name: etcd
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-etcd
+            - openshift-etcd-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: etcd
+
+    - name: kube-apiserver
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-kube-apiserver
+            - openshift-kube-apiserver-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: kube-apiserver
+
+    - name: kube-controller-manager
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-kube-controller-manager
+            - openshift-kube-controller-manager-operator
+            - kube-system
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: kube-controller-manager
+
+    - name: kube-scheduler
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-kube-scheduler
+            - openshift-kube-scheduler-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: kube-scheduler
+
+    - name: machine-approver
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-cluster-machine-approver
+            - openshift-machine-approver-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: machine-approver
+
+    - name: machine-config
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace: openshift-machine-config-operator
+        - matchLabels:
+            alertname:
+            - HighOverallControlPlaneMemory
+            - ExtremelyHighIndividualControlPlaneMemory
+            - MissingMachineConfig
+            - MCCBootImageUpdateError
+            - KubeletHealthState
+            - SystemMemoryExceedsReservation
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: machine-config
+
+    - name: version
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-cluster-version
+            - openshift-version-operator
+        - matchLabels:
+            alertname:
+            - ClusterNotUpgradeable
+            - UpdateAvailable
+
+    - name: dns
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-dns
+            - openshift-dns-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: dns
+
+    - name: authentication
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-authentication
+            - openshift-oauth-apiserver
+            - openshift-authentication-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: authentication
+
+    - name: cloud-controller-manager
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-cloud-controller-manager
+            - openshift-cloud-controller-manager-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: cloud-controller-manager
+
+    - name: cloud-credential
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace: openshift-cloud-credential-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: cloud-credential
+
+    - name: config-operator
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace: openshift-config-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: config-operator
+
+    - name: kube-storage-version-migrator
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-kube-storage-version-migrator
+            - openshift-kube-storage-version-migrator-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: kube-storage-version-migrator
+
+    - name: image-registry
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-image-registry
+            - openshift-image-registry-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: image-registry
+
+    - name: ingress
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-ingress
+            - openshift-route-controller-manager
+            - openshift-ingress-canary
+            - openshift-ingress-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: ingress
+
+    - name: console
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-console
+            - openshift-console-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: console
+
+    - name: insights
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-insights
+            - openshift-insights-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: insights
+
+    - name: machine-api
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-machine-api
+            - openshift-machine-api-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: machine-api
+
+    - name: monitoring
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-monitoring
+            - openshift-monitoring-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: monitoring
+
+    - name: network
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-network-operator
+            - openshift-ovn-kubernetes
+            - openshift-multus
+            - openshift-network-diagnostics
+            - openshift-sdn
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: network
+
+    - name: node-tuning
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-cluster-node-tuning-operator
+            - openshift-node-tuning-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: node-tuning
+
+    - name: openshift-apiserver
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-apiserver
+            - openshift-apiserver-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: openshift-apiserver
+
+    - name: openshift-controller-manager
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-controller-manager
+            - openshift-controller-manager-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: openshift-controller-manager
+
+    - name: openshift-samples
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-cluster-samples-operator
+            - openshift-samples-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: openshift-samples
+
+    - name: operator-lifecycle-manager
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace: openshift-operator-lifecycle-manager
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: operator-lifecycle-manager # Matches the CO list entry
+
+    - name: service-ca
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-service-ca
+            - openshift-service-ca-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: service-ca
+
+    - name: storage
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-storage
+            - openshift-cluster-csi-drivers
+            - openshift-cluster-storage-operator
+            - openshift-storage-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: storage
+
+    - name: marketplace
+      alerts:
+        selectors:
+        - matchLabels:
+            namespace:
+            - openshift-marketplace
+            - openshift-marketplace-operator
+      objects:
+      - group: config.openshift.io
+        resource: clusteroperators
+        selectors:
+        - name: marketplace
+
+- name: addons
+  children:
+
+  - name: openshift-compliance
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-compliance
+
+  - name: openshift-file-integrity
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-file-integrity
+
+  - name: openshift-logging
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-logging
+
+  - name: openshift-user-workload-monitoring
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-user-workload-monitoring
+
+  - name: openshift-gitops
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace:
+          - openshift-gitops
+          - openshift-gitops-operator
+
+  - name: openshift-operators
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-operators
+
+  - name: kubevirt
+    alerts:
+      selectors:
+      - matchLabels:
+          kubernetes_operator_part_of: kubevirt
+      - matchLabels:
+          namespace: openshift-cnv
+    objects:
+    - group: kubevirt.io
+      resource: kubevirts
+
+  - name: openshift-local-storage
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace: openshift-local-storage
+
+  - name: quay
+    alerts:
+      selectors:
+      - matchLabels:
+          container:
+          - quay-app
+          - quay-mirror
+          - quay-app-upgrade
+
+  - name: Argo
+    alerts:
+      selectors:
+      - matchLabels:
+          alertname:
+            regexp: ^Argo
+
+  - name: cert-manager
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace:
+          - openshift-cert-manager
+          - openshift-cert-manager-operator
+
+  - name: vertical-pod-autoscaler
+    alerts:
+      selectors:
+      - matchLabels:
+          namespace:
+          - openshift-vertical-pod-autoscaler
+          - openshift-vertical-pod-autoscaler-operator
+
+- name: workloads
+  children:
+
+  - name: nodes
+    objects:
+    - resource: nodes
+      selectors:
+      - matchLabels:
+          node-role.kubernetes.io/worker:
